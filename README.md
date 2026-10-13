@@ -39,7 +39,27 @@ Prerequisites: Node.js 20+
    npm run dev
    ```
 
-## Build for Production
+## Deploy on Vercel
+
+The `api/` directory contains Vercel Serverless Functions that mirror the
+Express server's routes (`/api/health`, `/api/gemini/*`, `/api/weather/*`),
+so the deployed app keeps full AI and weather-feed functionality — no
+long-running server needed. `vercel.json` handles SPA routing and function
+timeouts.
+
+1. Import this repo at [vercel.com](https://vercel.com) → Add New → Project
+   (framework preset: Vite, build command `npm run build`, output `dist`).
+2. (Optional, recommended) Add a `GEMINI_API_KEY` environment variable in the
+   project settings. Without it, the app runs on its built-in heuristic
+   fallbacks; with it, the Gemini reasoning / critique / weather-analysis
+   endpoints go live.
+3. Deploy. Every push to `main` redeploys automatically.
+
+Local dev still uses the Express server (`npm run dev` → `server.ts`), which
+shares its Gemini logic with the serverless functions via `lib/thoth-api.ts` —
+behavior is identical in both environments.
+
+## Build for Production (self-hosted)
 
 ```bash
 npm run build
@@ -52,6 +72,10 @@ npm start
 - `src/domains/` — Domain models (hurricane twins, weather patterns)
 - `src/components/` — React UI components
 - `src/types/` — TypeScript type definitions
+- `api/` — Vercel Serverless Functions mirroring the Express API routes
+- `lib/thoth-api.ts` — Shared API helpers (Gemini client, fallbacks) used by both `server.ts` and `api/`
+- `server.ts` — Express server for local development
+- `vercel.json` — Vercel deployment config (SPA rewrites, function timeouts)
 - `docs/` — Architecture and roadmap documentation
 
 ## License

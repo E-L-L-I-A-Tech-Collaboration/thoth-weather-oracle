@@ -1,0 +1,1 @@
+{"$schema":"https://openapi.vercel.sh/vercel.json","functions":{"api/gemini/*":{"maxDuration":60},"api/weather/*":{"maxDuration":30}},"rewrites":[{"destination":"/index.html","source":"/(.*)"}]}
