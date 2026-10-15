@@ -1,4 +1,3 @@
-import { Type } from '@google/genai';
 import {
   getGeminiClient,
   isQuotaError,
@@ -7,9 +6,9 @@ import {
 } from '../../lib/thoth-api';
 
 export default async function handler(req: ApiRequest, res: ApiResponse) {
-  const ai = getGeminiClient();
   const userHypothesis = req.body?.userHypothesis;
   try {
+    const ai = await getGeminiClient();
     const { weatherState, mode } = req.body ?? {};
 
     if (!ai) {
@@ -24,6 +23,10 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
           : 'Hypothesis Baseline: Environmental shear remains below 15 kts threshold; no eyewall collapse detected.',
       });
     }
+
+    // Lazy-load the Gemini SDK (incl. Type): keeps the serverless bundle light
+    // and avoids the module-eval crash seen on Vercel on 2026-10-15.
+    const { Type } = await import('@google/genai');
 
     const systemInstruction = `
 You are the Chief AI Meteorologist and Atmospheric Physicist for the HRM Weather Patterns Runtime.

@@ -6,24 +6,17 @@
  *  - Vercel Serverless Functions (the api directory), which use the Node-style
  *    (req, res) handler signature.
  *
- * Keeping the Gemini client factory here guarantees identical behaviour —
- * including the heuristic fallbacks when GEMINI_API_KEY is absent — in
- * both environments.
+ * IMPORTANT: `@google/genai` is loaded lazily inside getGeminiClient(), never
+ * at module top level. Vercel evaluates each api/*.ts file as its own
+ * function bundle, and a static top-level import of the SDK crashed every
+ * importing route with FUNCTION_INVOCATION_FAILED on 2026-10-15. Lazy loading
+ * also means routes that never call getGeminiClient() (weather feeds) pay
+ * zero SDK cost at cold start.
  */
-import { GoogleGenAI } from '@google/genai';
 
-/** Minimal structural typing for a Node-style serverless request. */
-export interface ApiRequest {
-  method?: string;
-  query: Record<string, string | string[] | undefined>;
-  body?: any;
-}
-
-/** Minimal structural typing for a Node-style serverless response. */
-export interface ApiResponse {
-  status(code: number): ApiResponse;
-  json(data: unknown): unknown;
-}
+import type { GoogleGenAI } from '@google/genai';
+export type { ApiRequest, ApiResponse } from './http-utils';
+export { isQuotaError, queryParam } from './http-utils';
 
 let cachedClient: GoogleGenAI | null | undefined;
 
@@ -32,34 +25,21 @@ let cachedClient: GoogleGenAI | null | undefined;
  * Returns null when no key is configured — callers must serve their
  * heuristic fallback in that case.
  */
-export function getGeminiClient(): GoogleGenAI | null {
+export async function getGeminiClient(): Promise<GoogleGenAI | null> {
   if (cachedClient !== undefined) return cachedClient;
   const apiKey = process.env.GEMINI_API_KEY;
-  cachedClient = apiKey
-    ? new GoogleGenAI({
-        apiKey,
-        httpOptions: {
-          headers: {
-            'User-Agent': 'aistudio-build',
-          },
-        },
-      })
-    : null;
+  if (!apiKey) {
+    cachedClient = null;
+    return cachedClient;
+  }
+  const { GoogleGenAI } = await import('@google/genai');
+  cachedClient = new GoogleGenAI({
+    apiKey,
+    httpOptions: {
+      headers: {
+        'User-Agent': 'aistudio-build',
+      },
+    },
+  });
   return cachedClient;
-}
-
-/** Read the first string value of a query parameter. */
-export function queryParam(req: ApiRequest, name: string, fallback: string): string {
-  const value = req.query[name];
-  if (Array.isArray(value)) return value[0] ?? fallback;
-  return value ?? fallback;
-}
-
-/** True when a Gemini failure looks like quota / rate limiting. */
-export function isQuotaError(error: any): boolean {
-  return (
-    error?.status === 429 ||
-    (typeof error?.message === 'string' &&
-      (error.message.includes('quota') || error.message.includes('429')))
-  );
 }

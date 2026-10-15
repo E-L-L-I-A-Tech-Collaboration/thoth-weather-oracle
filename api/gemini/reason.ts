@@ -1,4 +1,3 @@
-import { Type } from '@google/genai';
 import {
   getGeminiClient,
   isQuotaError,
@@ -7,8 +6,8 @@ import {
 } from '../../lib/thoth-api';
 
 export default async function handler(req: ApiRequest, res: ApiResponse) {
-  const ai = getGeminiClient();
   try {
+    const ai = await getGeminiClient();
     const { worldStateSummary, userPrompt } = req.body ?? {};
 
     if (!ai) {
@@ -25,6 +24,10 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
         proposedEvents: [],
       });
     }
+
+    // Lazy-load the Gemini SDK (incl. Type): keeps the serverless bundle light
+    // and avoids the module-eval crash seen on Vercel on 2026-10-15.
+    const { Type } = await import('@google/genai');
 
     const systemInstruction = `
 You are LLM A (Reasoning Engine) inside an HRM (Hierarchical Resilient Model) World-Model Substrate.
