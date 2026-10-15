@@ -15,8 +15,8 @@
  */
 
 import type { GoogleGenAI } from '@google/genai';
-export type { ApiRequest, ApiResponse } from './http-utils';
-export { isQuotaError, queryParam } from './http-utils';
+export type { ApiRequest, ApiResponse } from './http-utils.js';
+export { isQuotaError, queryParam } from './http-utils.js';
 
 let cachedClient: GoogleGenAI | null | undefined;
 

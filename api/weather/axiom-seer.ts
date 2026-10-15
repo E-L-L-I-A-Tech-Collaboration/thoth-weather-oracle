@@ -1,5 +1,5 @@
-import { queryParam } from '../../lib/http-utils';
-import type { ApiRequest, ApiResponse } from '../../lib/http-utils';
+import { queryParam } from '../../lib/http-utils.js';
+import type { ApiRequest, ApiResponse } from '../../lib/http-utils.js';
 
 /** AxiomHRMWheatherSeer9955 high-fidelity predictive telemetry endpoint. */
 export default async function handler(req: ApiRequest, res: ApiResponse) {

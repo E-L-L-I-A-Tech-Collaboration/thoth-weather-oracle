@@ -1,5 +1,5 @@
-import { queryParam } from '../../lib/http-utils';
-import type { ApiRequest, ApiResponse } from '../../lib/http-utils';
+import { queryParam } from '../../lib/http-utils.js';
+import type { ApiRequest, ApiResponse } from '../../lib/http-utils.js';
 
 /** Proxies Open-Meteo environmental grid data, falling back to a simulated grid on failure. */
 export default async function handler(req: ApiRequest, res: ApiResponse) {

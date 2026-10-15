@@ -3,7 +3,7 @@ import {
   isQuotaError,
   type ApiRequest,
   type ApiResponse,
-} from '../../lib/thoth-api';
+} from '../../lib/thoth-api.js';
 
 export default async function handler(req: ApiRequest, res: ApiResponse) {
   try {
