@@ -11,7 +11,6 @@ import { LedgerView } from './components/LedgerView';
 import { ReplayControls } from './components/ReplayControls';
 import { ResourceMonitor } from './components/ResourceMonitor';
 import { PerturbationPanel } from './components/PerturbationPanel';
-import { PythonCodeExporter } from './components/PythonCodeExporter';
 import { SubstrateHealthAndReputation } from './components/SubstrateHealthAndReputation';
 import { CognitiveMemoryConsole } from './components/CognitiveMemoryConsole';
 import { WeatherMultiFeedMatrix } from './components/WeatherMultiFeedMatrix';
@@ -24,7 +23,6 @@ import {
   CloudRain,
   Activity,
   FileText,
-  Terminal,
   ShieldAlert,
   Zap,
   Sparkles,
@@ -50,7 +48,7 @@ export default function App() {
   const [ledger, setLedger] = useState(runtime.getLedger());
   const [isRunning, setIsRunning] = useState(runtime.getIsRunning());
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'gemini' | 'feeds' | 'canvas' | 'mechanisms' | 'consequences' | 'health' | 'memory' | 'python'>('gemini');
+  const [activeTab, setActiveTab] = useState<'gemini' | 'feeds' | 'canvas' | 'mechanisms' | 'consequences' | 'health' | 'memory'>('gemini');
   const [selectedStepForLedger, setSelectedStepForLedger] = useState(0);
 
   useEffect(() => {
@@ -227,17 +225,6 @@ export default function App() {
           >
             <Database className="w-4 h-4 text-purple-400" /> Cognitive Memory
           </button>
-
-          <button
-            onClick={() => setActiveTab('python')}
-            className={`px-3.5 py-2 rounded-lg transition-all flex items-center gap-2 ${
-              activeTab === 'python'
-                ? 'bg-sky-600 text-white shadow-lg shadow-sky-600/20 font-semibold'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
-            }`}
-          >
-            <Terminal className="w-4 h-4" /> Python Source Code
-          </button>
         </div>
 
         {/* Tab 1: Gemini Weather AI */}
@@ -402,13 +389,6 @@ export default function App() {
               onReset={handleReset}
             />
             <CognitiveMemoryConsole state={worldState} />
-          </div>
-        )}
-
-        {/* Tab 8: Python Code Exporter */}
-        {activeTab === 'python' && (
-          <div className="space-y-4">
-            <PythonCodeExporter />
           </div>
         )}
       </main>
